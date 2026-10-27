@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TP-Link Line Status</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="brand">
+        <h1 id="deviceLabel">TP-Link Line Status</h1>
+        <div class="sub">
+          Read-only dashboard for
+          <span id="routerHost">192.168.1.1</span>
+        </div>
+      </div>
+      <div class="actions">
+        <span class="meta" id="fetchedAt">—</span>
+        <span class="pill"
+          ><span class="dot" id="liveDot"></span
+          ><span id="liveLabel">idle</span></span
+        >
+        <button type="button" id="refreshBtn">Refresh</button>
+        <a class="btn" href="http://192.168.1.1" target="_blank" rel="noopener"
+          >Stock admin</a
+        >
+        <a
+          class="btn"
+          href="https://speed.cloudflare.com/"
+          target="_blank"
+          rel="noopener"
+          >Speed test</a
+        >
+      </div>
+    </header>
+
+    <div class="banner" id="errorBanner"></div>
+
+    <main class="grid">
+      <section class="panel half">
+        <h2>Line health</h2>
+        <div class="metrics">
+          <div class="metric">
+            <div class="label">Line state</div>
+            <div class="value" id="lineState">—</div>
+          </div>
+          <div class="metric">
+            <div class="label">SNR down / up</div>
+            <div class="value" id="snr">—</div>
+            <div class="hint" id="snrHint"></div>
+          </div>
+          <div class="metric">
+            <div class="label">Attenuation down / up</div>
+            <div class="value" id="attenuation">—</div>
+            <div class="hint" id="attHint"></div>
+          </div>
+          <div class="metric">
+            <div class="label">CRC down / up</div>
+            <div class="value" id="crc">—</div>
+          </div>
+          <div class="metric">
+            <div class="label">Modulation</div>
+            <div class="value" id="modulation" style="font-size: 0.95rem">—</div>
+          </div>
+          <div class="metric">
+            <div class="label">Annex</div>
+            <div class="value" id="annex" style="font-size: 0.95rem">—</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel half">
+        <h2>Capacity (sync vs max)</h2>
+        <div class="metrics">
+          <div class="metric">
+            <div class="label">Downstream sync</div>
+            <div class="value" id="downSync">—</div>
+          </div>
+          <div class="metric">
+            <div class="label">Upstream sync</div>
+            <div class="value" id="upSync">—</div>
+          </div>
+        </div>
+        <div class="bar">
+          <div class="bar-track">
+            <div class="bar-fill" id="downBar"></div>
+          </div>
+          <div class="bar-labels">
+            <span id="downBarLabel">down</span>
+            <span id="downMaxLabel">max</span>
+          </div>
+        </div>
+        <div class="bar">
+          <div class="bar-track">
+            <div class="bar-fill" id="upBar"></div>
+          </div>
+          <div class="bar-labels">
+            <span id="upBarLabel">up</span>
+            <span id="upMaxLabel">max</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel third">
+        <h2>WAN / PPPoE</h2>
+        <div class="metrics">
+          <div class="metric">
+            <div class="label">PVC</div>
+            <div class="value" id="wanPvc">—</div>
+          </div>
+          <div class="metric">
+            <div class="label">Status</div>
+            <div class="value" id="wanStatus">—</div>
+          </div>
+          <div class="metric">
+            <div class="label">Public IP</div>
+            <div class="value" id="wanIp" style="font-size: 0.95rem">—</div>
+          </div>
+          <div class="metric">
+            <div class="label">Gateway</div>
+            <div class="value" id="wanGw" style="font-size: 0.95rem">—</div>
+          </div>
+          <div class="metric">
+            <div class="label">DNS</div>
+            <div class="value" id="wanDns" style="font-size: 0.95rem">—</div>
+          </div>
+          <div class="metric">
+            <div class="label">Encap</div>
+            <div class="value" id="wanEncap" style="font-size: 0.95rem">—</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel third">
+        <h2>Latency probes</h2>
+        <div class="metrics">
+          <div class="metric">
+            <div class="label">Gateway (router HTTP)</div>
+            <div class="value" id="probeGw">—</div>
+          </div>
+          <div class="metric">
+            <div class="label">1.1.1.1 path</div>
+            <div class="value" id="probeDns">—</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel third">
+        <h2>Wi‑Fi clients</h2>
+        <div id="clientCount" class="empty" style="margin-bottom: 0.5rem">—</div>
+        <div style="max-height: 220px; overflow: auto">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>MAC</th>
+              </tr>
+            </thead>
+            <tbody id="clientRows">
+              <tr>
+                <td colspan="2" class="empty">Waiting for data…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span
+        >Read-only · not a router admin · ADSL sync is ISP-limited</span
+      >
+      <span id="cacheHint" class="meta"></span>
+    </footer>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
